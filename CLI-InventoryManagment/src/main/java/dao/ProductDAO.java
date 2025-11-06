@@ -6,9 +6,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 //class to handle database actions and operations
 public class ProductDAO {
+
+    // What if they are trying to enter a product that already exists?
+
 
     public static void connectDB(){
         try (Connection conn = DBConnection.getConnection()){
@@ -16,6 +20,17 @@ public class ProductDAO {
         } catch (SQLException e){
             System.out.println("connection failed: " + e.getMessage());
         }
+    }
+
+    public boolean createProduct(String name, double price, int quantity){
+        Product newProduct = new Product(name, price, quantity);
+        if (addProduct(newProduct)){
+            return true;
+        } else {
+            System.out.println("there was an error inserting");
+            return false;
+        }
+
     }
 
     //SQL statement : insert into products (name, price, quantity) values ('name', price, quantity);
@@ -56,7 +71,23 @@ public class ProductDAO {
         return null;
     };
 
-    //public void getAllProducts(){};
+    public ArrayList<Product> getAllProducts(){
+        String sql = "select * from products order by productid asc";
+        ArrayList<Product> list = new ArrayList<Product>();
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
+            ResultSet rS = stmt.executeQuery();
+            while(rS.next()){
+                Product prod = new Product(rS.getString("name"), rS.getDouble("price"), rS.getInt("quantity"));
+                prod.setProductID(rS.getInt("productid"));
+                list.add(prod);
+            }
+            return list;
+        } catch (SQLException e){
+            System.out.println("Could not get products.");
+            return list;
+        }
+    };
 
     public boolean updateName(int id, String name){
         String sql = "update products set name = ? where productid = ?";
