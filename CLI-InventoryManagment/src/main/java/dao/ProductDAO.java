@@ -1,6 +1,7 @@
 package dao;
 
 import models.Product;
+import org.w3c.dom.ls.LSOutput;
 import utils.DBConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -57,7 +58,6 @@ public class ProductDAO {
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setInt(1, id);
-            //this will store the result of the query
             ResultSet rS = stmt.executeQuery();
             Product prod;
             if(rS.next()){
@@ -68,6 +68,7 @@ public class ProductDAO {
         } catch (SQLException e){
             System.out.println("Could not get product.");
         }
+        System.out.println("Could not get product");
         return null;
     };
 
@@ -125,6 +126,24 @@ public class ProductDAO {
 
     public boolean updateQuantity(int id, int quantity){
         String sql = "update products set quantity = ? where productid = ?";
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, id);
+
+            int rowsAffected = stmt.executeUpdate();
+            System.out.println("Update successful.");
+            System.out.println("rows affected: " + rowsAffected);
+            return true;
+
+        } catch (SQLException e){
+            System.out.println("Update failed.");
+            return false;
+        }
+    }
+
+    public boolean addQuantity(int id, int quantity){
+        String sql = "update products set quantity = quantity + ? where productid = ?";
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setInt(1, quantity);

@@ -1,17 +1,21 @@
 import models.Product;
 import dao.ProductDAO;
+import services.InventoryService;
 import java.util.Scanner;
+import java.io.Console;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
         ProductDAO dao = new ProductDAO();
+        InventoryService is = new InventoryService();
 
-        System.out.println("Welcome to CLI Inventory Manager!\nWhat can we help you with?");
+        printStart();
         int userInput = 0;
 
-        while(userInput != 5){
-            System.out.println("1) Create a new product.\n2) Get product information.\n3) Update an existing product.\n4) Delete an existing product.\n5) Quit");
+        while(userInput != 7){
+            System.out.println("1) Create a new product.\n2) Get product information.\n3) Update an existing product.\n4) Delete an existing product." +
+                    "\n5) Reorder Low Stock\n6) Check Low Stock\n7) Quit");
             userInput = scan.nextInt();
 
             switch (userInput) {
@@ -31,13 +35,14 @@ public class Main {
                 case 2: //Get product information
                     System.out.println("Get product information...");
                     System.out.println("1) Specific product?\n2) All products?");
-                    if(scan.nextInt() == 1) {
+                    int choice = scan.nextInt();
+                    if(choice == 1) {
 
                         System.out.println("Enter product id: ");
                         int id = scan.nextInt();
                         System.out.println(dao.getProduct(id));
 
-                    } else if(scan.nextInt() == 2){
+                    } else if(choice == 2){
 
                         System.out.println("Returning all products...");
                         System.out.println(dao.getAllProducts());
@@ -89,9 +94,64 @@ public class Main {
                         break;
                     }
                     break;
+
+                case 5: //reorder
+                    System.out.println("Reorder stock");
+                    System.out.println("Would you like to: 1) Reorder for a specific product? 2) Reorder all low stock products?");
+                    choice = scan.nextInt();
+                    if(choice == 1){
+                        System.out.println("Reorder for specific product...");
+                        System.out.println("Enter product id");
+                        int pid = scan.nextInt();
+                        is.reorderStock(pid);
+                        break;
+                    } else if (choice == 2){
+                        System.out.println("Reorder for all low products...");
+                        is.reorderAllLow();
+                        break;
+
+                    } else {
+                        System.out.println("Quitting...");
+                        break;
+                    }
+
+                case 6: //check low stock
+                    System.out.println("Checking low stock...");
+                    System.out.println(is.checkLowStock());
             }
         }
 
 
+    }
+
+    private static int getTerminalWidth(){
+        Console console = System.console();
+        if(console != null){
+            try {
+                return Integer.parseInt(System.getenv("COLUMNS"));
+            } catch (Exception e) {
+                //ignore
+            }
+        }
+        //this value will be used if it cannot detect the terminal width.
+        return 80;
+    }
+
+    private static void printStart(){
+        String message = "Welcome to CLI Inventory Manager!";
+        int terminalWidth = getTerminalWidth();
+        int boxWidth = Math.max(message.length() + 10, terminalWidth);
+
+        String border = "x" + ":".repeat(boxWidth - 2) + "x";
+        String emptyLine = "|" + " ".repeat(boxWidth -2) + "|";
+
+        int padding = (boxWidth - 2 - message.length()) / 2;
+        String centeredLine = "|" + " ".repeat(padding) + message + " ".repeat(boxWidth - 2 - padding - message.length()) + "|";
+
+        System.out.println(border);
+        System.out.println(emptyLine);
+        System.out.println(centeredLine);
+        System.out.println(emptyLine);
+        System.out.println(border);
     }
 }

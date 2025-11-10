@@ -48,6 +48,10 @@ public class Product {
         quantity = pQuantity;
     }
 
+    public void addQuantity(int aQuantity){
+        quantity += aQuantity;
+    }
+
     @Override
     public String toString(){
         return("Product ID: " + productID + "\nProduct Name: " + productName + "\nPrice: " + price + "\nQuantity: " + quantity);
