@@ -1,7 +1,6 @@
 package dao;
 
 import models.Product;
-import org.w3c.dom.ls.LSOutput;
 import utils.DBConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,15 +12,6 @@ import java.util.ArrayList;
 public class ProductDAO {
 
     // What if they are trying to enter a product that already exists?
-
-
-    public static void connectDB(){
-        try (Connection conn = DBConnection.getConnection()){
-            System.out.println("connected to database");
-        } catch (SQLException e){
-            System.out.println("connection failed: " + e.getMessage());
-        }
-    }
 
     public boolean createProduct(String name, double price, int quantity){
         Product newProduct = new Product(name, price, quantity);
@@ -51,7 +41,7 @@ public class ProductDAO {
             System.out.println("there was an error inserting.");
             return false;
         }
-    };
+    }
 
     public Product getProduct(int id){
         String sql = "select * from products where productid = ?";
@@ -70,11 +60,11 @@ public class ProductDAO {
         }
         System.out.println("Could not get product");
         return null;
-    };
+    }
 
     public ArrayList<Product> getAllProducts(){
         String sql = "select * from products order by productid asc";
-        ArrayList<Product> list = new ArrayList<Product>();
+        ArrayList<Product> list = new ArrayList<>();
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
             ResultSet rS = stmt.executeQuery();
@@ -88,7 +78,7 @@ public class ProductDAO {
             System.out.println("Could not get products.");
             return list;
         }
-    };
+    }
 
     public boolean updateName(int id, String name){
         String sql = "update products set name = ? where productid = ?";
@@ -175,10 +165,5 @@ public class ProductDAO {
             System.out.println("Delete failed.");
             return false;
         }
-    };
-
-
-    public static void main(String args[]) {
-        connectDB();
     }
 }
